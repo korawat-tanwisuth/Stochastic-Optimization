@@ -1,0 +1,165 @@
+---
+title: "HW4"
+author: "Korawat Tanwisuth"
+date: "March 9, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+##1
+
+maximize $0.05*(L^{2/3})*(K^{1/3})$<br/>
+
+subject to $12*L+15*K \leq 100000$<br/>
+
+```{r}
+f <- function(x){
+    return(-0.05*(x[1]^(2/3))*(x[2]^(1/3)))
+}
+gradf <- function(x){
+    v1 <- (-0.05)*(2/3)*(x[1]^(-1/3))*(x[2]^(1/3))
+    v2 <- (-0.05)*(1/3)*(x[2]^(-2/3))*(x[1]^(2/3))
+    return(c(v1,v2))
+}
+
+ui <- matrix(c(-12,-15),ncol = 2)
+ci <- matrix(c(-100000),ncol = 1)
+ans1 <- constrOptim(c(5500,2200),f, grad=gradf, ui, ci)
+-ans1$value
+```
+
+
+##2
+Let $w_i = \text{the weight invested in stock i}\ i=1,2,\dots,n$<br/>
+    $X_i = \text{return of stock i}\ i=1,2,\dots,n$<br/>
+    $m_i = \text{mean return of stock i}\ i=1,2,\dots,n$<br/>
+    
+minimize $\sum_{i=1}^{n}w_i*w_j*Cov(X_i,X_j)\ \forall i,j$<br/>
+subject to $\sum_{i=1}^{n}w_i=1\ \forall i$<br/>
+           $\sum_{i=1}^{n}w_i*m_i\geq 0.01\ \forall i$<br/>
+           $w_i \geq 0\ \forall i$<br/>
+```{r}
+library(quadprog)
+stocks <- read.csv("homework4stocks.csv")
+dates <- stocks[,1]
+stock_ret <- stocks[,2:ncol(stocks)]
+mean_ret <- apply(stock_ret,2,mean)
+var_ret <- apply(stock_ret,2,var)
+cor_ret <- cor(stock_ret)
+n <- ncol(stock_ret)
+A <- rbind(rep(1,n),mean_ret,diag(n))
+Amat <- t(A)
+Dmat <- 2*cov(stock_ret)
+dvec <- rep(0,n)
+bvec <- c(1,0.01,rep(0,n))
+ans2 <- solve.QP(Dmat, dvec, Amat, bvec, meq=1)
+sol <- ans2$solution
+exp_mean <- sum(sol*mean_ret)
+exp_var <- sum(sol*var_ret)
+exp_sd <- sqrt(exp_var)
+names(sol) <- colnames(stock_ret)
+sol
+```
+
+```{r}
+print(paste("Expected Mean", exp_mean))
+print(paste("Expected Variance", exp_var))
+print(paste("Expected Standard Deviation",exp_sd))
+```
+
+
+
+##3
+```{r}
+library(knitr)
+df<- read.csv("variable_selection.csv")
+lm2_1 <- lm(y~x1+x2,df)
+lm2_2 <- lm(y~x1+x3,df)
+lm2_3 <- lm(y~x2+x3,df)
+lm1_1 <- lm(y~x1,df)
+lm1_2 <- lm(y~x2,df)
+lm1_3 <- lm(y~x3,df)
+sse <- function(lm_ob){
+    return(sum(lm_ob$residuals^2))
+}
+sse_vec <- c(sse(lm2_1),sse(lm2_2),sse(lm2_3),sse(lm1_1),sse(lm1_2),sse(lm1_3))
+sse_names <- c("x1_x2","x1_x3","x2_x3","x1","x2","x3")
+table_sse <- data.frame(sse_vec)
+rownames(table_sse) <- sse_names
+table_sse
+```
+
+This shows that the model with only $x_1$ and $x_2$ minimizes residual sum squared.
+
+##4
+
+Let $x_{ij} = \text{allowable path from node i to node j}\ \forall i,j$<br/>
+
+minimize $I^2R$<br/>
+
+subject to $x_{12}+x_{13}=710$<br/>
+            $x_{12}-x_{23}-x_{24}=0$<br/>
+            $x_{13}+x_{23}-x_{34}=0$<br/>
+            $x_{24}+x_{34}=710$<br/>
+
+```{r}
+n <- 5
+c1<- c(1,1,rep(0,3))
+c2 <- c(1,0,-1,-1,0)
+c3 <- c(0,1,1,0,-1)
+c4 <- c(rep(0,3),1,1)
+A <- rbind(c1,c2,c3,c4)
+Amat <- t(A)
+bvec <- c(710,0,0,710)
+dvec <- rep(0,n)
+Dmat <- matrix(0,n,n)
+diag(Dmat) <- 2*c(1,4,6,12,3)
+ans4<- solve.QP(Dmat, dvec, Amat, bvec, meq=length(bvec))$solution
+
+```
+
+```{r}
+names(ans4) <- c("x_12","x_13","x_23","x_24","x_34")
+ans4
+```
+
+
+##5
+
+Let  $y_i = \text{actual spread of team i}$<br/>
+
+$\hat{y} =\text{the predicted spread}\ \forall i=1,2,\dots,n$<br/>
+    
+minimize $\sum_{i=1}^{n}(y_i-\hat{y_i})^2$
+
+
+```{r}
+nfl <- read.csv("nflratings.csv",header = FALSE)
+colnames(nfl) <- c("Week","HT_index","VT_index","HT_score","VT_score")
+avg_rate <- 85
+APS <- nfl["HT_score"]-nfl["VT_score"]
+HT_index <- as.vector(nfl[["HT_index"]])
+VT_index <- as.vector(nfl[["VT_index"]])
+
+pred_spread <- function(HTR,VTR,HTA){
+    return(HTR-VTR+HTA)
+}
+n <- max(HT_index)
+pred_err <- function(x){
+    x <- (x-mean(x))+avg_rate
+    HTR <- x[HT_index]
+    VTR <- x[VT_index]
+    HTA <- x[length(x)]
+    prediction <- pred_spread(HTR,VTR,HTA)
+    return(sum((APS-prediction)^2))
+}
+
+guess <- rep(85,n+1)
+res <-optim(guess,pred_err,method = "CG")
+best_sol <- res$par
+lowest <- res$val
+
+lowest
+best_sol
+```
+

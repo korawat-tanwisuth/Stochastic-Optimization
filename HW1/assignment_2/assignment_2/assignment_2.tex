@@ -1,0 +1,485 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Programming/Coding Assignment
+% LaTeX Template
+%
+% This template has been downloaded from:
+% http://www.latextemplates.com
+%
+% Original author:
+% Ted Pavlic (http://www.tedpavlic.com)
+%
+% Note:
+% The \lipsum[#] commands throughout this template generate dummy text
+% to fill the template out. These commands should all be removed when 
+% writing assignment content.
+%
+% This template uses a Perl script as an example snippet of code, most other
+% languages are also usable. Configure them in the "CODE INCLUSION 
+% CONFIGURATION" section.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage[usenames,dvipsnames]{color} % Required for custom colors
+\usepackage{graphicx} % Required to insert images
+\usepackage{listings} % Required for insertion of code
+\usepackage{courier} % Required for the courier font
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{amsmath,amssymb,amsthm}
+
+
+
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1} % Line spacing
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\hmwkAuthorName} % Top left header
+\chead{\hmwkClass\ (\hmwkClassInstructor\ \hmwkClassTime): \hmwkTitle} % Top center head
+\rhead{\firstxmark} % Top right header
+\lfoot{\lastxmark} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}} % Bottom right footer
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+%----------------------------------------------------------------------------------------
+%	CODE INCLUSION CONFIGURATION
+%----------------------------------------------------------------------------------------
+
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0} % This is the color used for comments
+\lstloadlanguages{Perl} % Load Perl syntax for listings, for a list of other languages supported see: ftp://ftp.tex.ac.uk/tex-archive/macros/latex/contrib/listings/listings.pdf
+\lstset{language=Perl, % Use Perl in this example
+        frame=single, % Single frame around code
+        basicstyle=\small\ttfamily, % Use small true type font
+        keywordstyle=[1]\color{Blue}\bf, % Perl functions bold and blue
+        keywordstyle=[2]\color{Purple}, % Perl function arguments purple
+        keywordstyle=[3]\color{Blue}\underbar, % Custom functions underlined and blue
+        identifierstyle=, % Nothing special about identifiers                                         
+        commentstyle=\usefont{T1}{pcr}{m}{sl}\color{MyDarkGreen}\small, % Comments small dark green courier font
+        stringstyle=\color{Purple}, % Strings are purple
+        showstringspaces=false, % Don't put marks in string spaces
+        tabsize=5, % 5 spaces per tab
+        %
+        % Put standard Perl functions not included in the default language here
+        morekeywords={rand},
+        %
+        % Put Perl function parameters here
+        morekeywords=[2]{on, off, interp},
+        %
+        % Put user defined functions here
+        morekeywords=[3]{test},
+       	%
+        morecomment=[l][\color{Blue}]{...}, % Line continuation (...) like blue comment
+        numbers=left, % Line numbers on left
+        firstnumber=1, % Line numbers start with line 1
+        numberstyle=\tiny\color{Blue}, % Line numbers are blue and small
+        stepnumber=5 % Line numbers go in steps of 5
+}
+
+% Creates a new command to include a perl script, the first parameter is the filename of the script (without .pl), the second parameter is the caption
+\newcommand{\perlscript}[2]{
+\begin{itemize}
+\item[]\lstinputlisting[caption=#2,label=#1]{#1.pl}
+\end{itemize}
+}
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT STRUCTURE COMMANDS
+%	Skip this unless you know what you're doing
+%----------------------------------------------------------------------------------------
+
+% Header and footer for when a page split occurs within a problem environment
+\newcommand{\enterProblemHeader}[1]{
+\nobreak\extramarks{#1}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+}
+
+% Header and footer for when a page split occurs between problem environments
+\newcommand{\exitProblemHeader}[1]{
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1}{}\nobreak
+}
+
+\setcounter{secnumdepth}{0} % Removes default section numbers
+\newcounter{homeworkProblemCounter} % Creates a counter to keep track of the number of problems
+
+\newcommand{\homeworkProblemName}{}
+\newenvironment{homeworkProblem}[1][Problem \arabic{homeworkProblemCounter}]{ % Makes a new environment called homeworkProblem which takes 1 argument (custom name) but the default is "Problem #"
+\stepcounter{homeworkProblemCounter} % Increase counter for number of problems
+\renewcommand{\homeworkProblemName}{#1} % Assign \homeworkProblemName the name of the problem
+\section{\homeworkProblemName} % Make a section in the document with the custom problem count
+\enterProblemHeader{\homeworkProblemName} % Header and footer within the environment
+}{
+\exitProblemHeader{\homeworkProblemName} % Header and footer after the environment
+}
+
+\newcommand{\problemAnswer}[1]{ % Defines the problem answer command with the content as the only argument
+\noindent\framebox[\columnwidth][c]{\begin{minipage}{0.98\columnwidth}#1\end{minipage}} % Makes the box around the problem answer and puts the content inside
+}
+
+\newcommand{\homeworkSectionName}{}
+\newenvironment{homeworkSection}[1]{ % New environment for sections within homework problems, takes 1 argument - the name of the section
+\renewcommand{\homeworkSectionName}{#1} % Assign \homeworkSectionName to the name of the section from the environment argument
+\subsection{\homeworkSectionName} % Make a subsection with the custom name of the subsection
+\enterProblemHeader{\homeworkProblemName\ [\homeworkSectionName]} % Header and footer within the environment
+}{
+\enterProblemHeader{\homeworkProblemName} % Header and footer after the environment
+}
+
+%----------------------------------------------------------------------------------------
+%	NAME AND CLASS SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\hmwkTitle}{Assignment\ \#1} % Assignment title
+\newcommand{\hmwkDueDate}{Thursday,\ January\ 25,\ 2018} % Due date
+\newcommand{\hmwkClass}{MIS\ 381} % Course/class
+\newcommand{\hmwkClassTime}{11: 00am} % Class/lecture time
+\newcommand{\hmwkClassInstructor}{Kumar} % Teacher/lecturer
+\newcommand{\hmwkAuthorName}{Korawat Tanwisuth} % Your name
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{
+\vspace{2in}
+\textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}\\
+\vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkClassTime}}
+\vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+\date{} % Insert date here if you want it to appear below your name
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+%\setcounter{tocdepth}{1} % Uncomment this line if you don't want subsections listed in the ToC
+
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
+
+% To have just one problem per page, simply put a \clearpage after each problem
+
+\begin{homeworkProblem}
+
+
+We will first show that $(AB)^T= B^T A^T$
+
+\begin{proof}
+
+$((AB)^T)_{ij}  = (AB)_{ji} = \sum_{k=1}^{n}a_{jk}b_{ki}$
+
+$(B^T A^T)_{ij} = \sum_{k=1}^{n}(B^T)_{ik} (A^T)_{kj} = \sum_{k=1}^{n}b_{ki}a_{jk}$
+
+Thus, $(AB)^T= B^T A^T$
+\end{proof}
+
+Now, we will show that $(A^{-1})^T=(A^T)^{-1}$
+\begin{proof}
+
+$I^T=I$
+
+$(AA^{-1})^T=I$
+
+$(A^{-1})^T (A)^T=I$ since $(AB)^T= B^T A^T$
+
+$(A^{-1})^T (A)^T(A^T)^{-1}=(A^T)^{-1}$
+
+$(A^{-1})^T =(A^T)^{-1}$ 
+\end{proof}
+
+
+
+
+\end{homeworkProblem}
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 2
+%----------------------------------------------------------------------------------------
+
+\begin{homeworkProblem}
+Denote\\
+$x_{1} = $Amount invested in the first mortgage\\
+$x_{2} = $Amount invested in the second mortage\\
+$x_{3} = $Amount invested in home improvement\\
+$x_{4} = $Amount invested in personal overdraft\\
+
+$x_{1}+x_{2}+x_{3}+x_{4} = 250\\
+0.25x_{1}-0.75x_{2}+0.25x_{3}+0.25x_{4} = 0\\
+-0.45x_{1}+0.55x_{2}= 0\\
+0.14x_{1}+0.2x_{2}+0.2x_{3}+0.1x_{4} = 250*0.15=37.5\\
+$
+
+We will write this system of linear equations in matrix form.\\
+
+Let
+
+\[
+A=
+\begin{bmatrix}
+1&1&1&1\\
+0.25&-0.75&0.25&0.25\\
+-0.45&0.55&0&0\\
+0.14&0.2&0.2&0.1\\
+\end{bmatrix}
+\]
+\[
+A^{-1}=
+\begin{bmatrix}
+0.3055&-1.2222&-2.2222&0\\
+0.25&-1&0&0\\
+-1.372&1.4888& 0.8888&10\\
+1.816&0.7333 &1.333&-10\\
+\end{bmatrix}
+\]
+\[
+x=
+\begin{bmatrix}
+x_{1}\\
+x_{2}\\
+x_{3}\\
+x_{4}\\
+\end{bmatrix}
+\]
+\[
+b=
+\begin{bmatrix}
+250\\
+0\\
+0\\
+37.5\\
+\end{bmatrix}
+\]
+
+R-code: \\
+$A = matrix(c(1,0.25,-0.45,0.14,1,-0.75,0.55,0.2,1,0.25,0,0.2,1,0.25,0,0.1),nrow=4)\\
+b = matrix(c(250,0,0,37.5),nrow=4)\\
+A\_inv = solve(A)\\
+x = A\_inv\%*\%b
+$
+
+$ Ax = b$
+
+$ x = A^{-1}b$
+\[
+x=
+\begin{bmatrix}
+76.3889\\
+62.5\\
+31.9444\\
+79.1667\\
+\end{bmatrix}
+\]
+
+\end{homeworkProblem}
+\newpage
+\begin{homeworkProblem}
+Denote\\
+$x_{i} = $ \# of units produced for variant i $\forall i \in \{1,2,3,4\}$
+
+
+maximize:\\
+$f=1.5x_{1}+2.5x_{2}+3x_{3}+4.5x_{4} $\\
+subject to:\\
+Assembly Constraint - $2x_{1}+4x_{2}+3x_{3}+7x_{4}\leq 100000$\\
+Polish Constraint - $3x_{1}+2x_{2}+3x_{3}+4x_{4}\leq 50000$\\
+Pack Constraint - $2x_{1}+3x_{2}+2x_{3}+5x_{4}\leq 60000$\\
+Non-Negativity Constraint - $-x_{i}\leq 0 $ $\forall i \in \{1,2,3,4\}$\\
+
+Let
+
+\[
+A=
+\begin{bmatrix}
+2&4&3&7\\
+3&2&3&4\\
+2&3&2&5\\
+-1&0&0&0\\
+0&-1&0&0\\
+0&0&-1&0\\
+0&0&0&-1\\
+\end{bmatrix}
+\]
+
+\[
+x=
+\begin{bmatrix}
+x_{1}\\
+x_{2}\\
+x_{3}\\
+x_{4}\\
+\end{bmatrix}
+\]
+
+\[
+b=
+\begin{bmatrix}
+100000\\
+50000\\
+60000\\
+0\\
+0\\
+0\\
+0\\
+\end{bmatrix}
+\]
+
+R-code:\\
+$z = c(1.5,2.5,3,4.5)\\
+A\_temp = matrix(c(2,3,2,4,2,3,3,3,2,7,4,5),nrow = 3)\\
+I = -diag(4)\\
+A = rbind(A\_temp,I)\\
+b = c(100000,50000,60000,0,0,0,0)\\
+signs = rep("<=",7)\\
+ans = lp("max", z, A, signs, b)\\
+$\\
+\[
+x=
+\begin{bmatrix}
+0\\
+16000\\
+6000\\
+0\\
+\end{bmatrix}
+\]
+The objective function is 58000. 
+Thus, we would produce 16000 units of variant 2 and 6000 of variant 3 and should obtain a profit of 58000.
+\end{homeworkProblem}
+\newpage
+\begin{homeworkProblem}
+Denote\\
+
+$r_{i} =$ rating of team i $\forall i \in \{1,2,3,4,5\}$\\
+
+Let 
+
+\[
+A=
+\begin{bmatrix}
+1&-1&0&0&0\\
+1&0&-1&0&0\\
+1&0&0&-1&0\\
+1&0&0&0&-1\\
+0&1&-1&0&0\\
+0&1&0&-1&0\\
+0&1&0&0&-1\\
+0&0&1&-1&0\\
+0&0&1&0&-1\\
+0&0&0&1&-1\\
+1&1&1&1&1\\
+\end{bmatrix}
+\]
+
+\[
+r=
+\begin{bmatrix}
+r_{1}\\
+r_{2}\\
+r_{3}\\
+r_{4}\\
+r_{5}\\
+\end{bmatrix}
+\]
+
+
+\[
+b=
+\begin{bmatrix}
+-45\\
+-3\\
+-31\\
+-45\\
+18\\
+8\\
+20\\
+2\\
+-27\\
+-38\\
+0\\
+\end{bmatrix}
+\]\\
+
+We will solve $Ar=b$. However, b is not in the column space of A so we will find $\hat{r}$ by projecting b into column space of A.\\
+
+$A\hat{r}=b$\\
+$A^TA\hat{r}=A^Tb$\\
+$(A^TA)^{-1}(A^TA)\hat{r}=(A^TA)^{-1}A^Tb$\\
+$\hat{r}=(A^TA)^{-1}A^Tb$\\
+
+
+
+R-code:\\
+$A= matrix(rep(0,50),nrow=10)\\
+i = 1\\
+k=4\\
+l=k\\
+j= 1\\
+p = 1\\
+for (r in 1:10)\{\\
+    A[i,j] = 1\\
+    A[i,j+p] = -1\\
+    l=l-1\\
+    i=i+1\\
+    p = p+1\\
+    if(l==0)\{\\
+        j=j+1\\
+        l=k-1\\
+        k=k-1\\
+        p = 1\\
+    \}\\
+\}\\
+A = rbind(A,rep(1,5))\\
+b = matrix(c(7-52,21-24,7-38,0-45,34-16,25-17,27-7,7-5,3-30,14-52,0),nrow=11)\\
+A.T = t(A)\\
+A.T\_A = A.T\%\*\%A\\
+x = (solve(A.T\_A)\%\*\%A.T)\%\*\%b$\\
+
+\[
+\hat{r}=
+\begin{bmatrix}
+-24.8\\
+18.2\\
+-8.0\\
+-3.4\\
+18.0\\
+\end{bmatrix}
+\]\\
+
+Thus, $r_{1} = -24.8, r_{2} = 18.2, r_{3} = -8.0, r_{4}=-3.4, r_{5} = 18.0$
+\end{homeworkProblem}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

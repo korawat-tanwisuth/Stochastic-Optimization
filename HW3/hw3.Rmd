@@ -1,0 +1,121 @@
+---
+title: "Code for HW3"
+author: "Korawat Tanwisuth"
+date: "February 20, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+##1
+```{r}
+library(lpSolve)
+#1
+A = matrix(c(-10,5,1,20,10,0), ncol =2)
+b = matrix(c(22,49,5),ncol =1)
+signs = rep("<=", 3)
+z = c(-1,4)
+ans =lp("max",z , A,signs,b,int.vec = 1:2)
+ans$solution
+```
+
+```{r}
+ans
+```
+
+##2
+```{r}
+#2
+b <- c(11,rep(1,6))
+A <- matrix(0,ncol=4,nrow=7)
+A[1,] <- c(6,3,5,2)
+A[2:5,] <- diag(4)
+A[6,] <- c(0,0,1,1)
+A[7,] <- c(-1,-1,0,0)
+z = c(9,5,6,4)
+signs <- rep("<=",7)
+ans = lp("max",z,A,signs,b,int.vec = 1:4)
+ans$solution
+
+```
+
+```{r}
+ans
+```
+
+##3
+
+```{r}
+b = rep(1,12)
+A = matrix(0,ncol=12,nrow=12)
+A[1,] <- c(1,0,1,0,1,0,rep(1,3),rep(0,3))
+A[2,] <- c(0,1,rep(0,5),1,1,rep(0,3))
+A[3,] <- c(1,0,1,rep(0,3),rep(1,3),rep(0,3))
+A[4,] <- c(rep(0,3),1,rep(0,5),1,rep(0,2))
+A[5,] <- c(1,rep(0,3),1,0,1,rep(0,5))
+A[6,] <- c(rep(0,5),1,rep(0,3),1,1,0)
+A[7,] <- c(rep(c(1,0),4),rep(0,4))
+A[8,] <- c(rep(1,3),rep(0,4),1,1,rep(0,3))
+A[9,] <- c(rep(1,3),rep(0,4),1,1,rep(0,3))
+A[10,] <- c(rep(0,3),1,0,1,rep(0,3),rep(1,3))
+A[11,] <- c(rep(0,5),1,rep(0,3),rep(1,3))
+A[12,] <- c(rep(0,9),rep(1,3))
+z = rep(1,12)
+signs <- rep(">=",12)
+ans = lp("min",z,A,signs,b,binary.vec = 1:12)
+ans$solution
+```
+
+```{r}
+ans
+```
+
+##4
+```{r}
+b <- matrix(c(233,148,106),ncol=1)
+finals <- c(25,37,54)
+mincut <- floor(120/finals)
+res <- matrix(0,ncol = 3)
+for(i in 0:mincut[1]){
+    for(j in 0:mincut[2]){
+        for(k in 0:mincut[3]){
+            pattern <- c(i,j,k)
+            if(sum(pattern*finals)<=120 & sum(pattern)!= 0){
+                res <- rbind(res,pattern)
+            }
+        }
+    }
+}
+A <- matrix(t(res[2:nrow(res),]),ncol=nrow(res)-1)
+z <- matrix(120-t(t(A)%*%finals))
+signs <- rep("=", nrow(A))
+ans = lp("min",z,A,signs,b,int.vec=1:17)
+ans$solution
+```
+
+```{r}
+ans
+```
+
+##5
+```{r}
+A <- matrix(0,ncol=7,nrow = 7)
+for(i in 0:6){
+    temp <- rep(1,7)
+    except <- c(((i+1)%%7)+1,((i+2)%%7)+1)
+    temp[except] <- rep(0,length(except))
+    A[i+1,] <- temp
+}
+
+
+b <- c(5,13,12,10,14,8,6)
+signs <- rep(">=",7)
+z <- c(330,300,330,360,360,360,360)
+ans = lp("min",z,A,signs,b,int.vec = 1:7)
+ans$solution
+```
+
+```{r}
+ans
+```
+

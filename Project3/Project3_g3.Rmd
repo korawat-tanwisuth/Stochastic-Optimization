@@ -1,0 +1,140 @@
+---
+title: "Project 3"
+author: "Korawat Tanwisuth, Lufang Liu, Arjun Adapalli, Saswata Das"
+date: "March 20, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(glmnet)
+library(gurobi)
+library(knitr)
+load("data.Rdata")
+```
+
+
+```{r}
+df <- data.frame(cbind(X,y))
+
+fit_lasso_cv <- cv.glmnet(X, y, alpha = 1)
+
+#Lasso min lambda
+lasso_min <- glmnet(X,y, alpha = 1, lambda = fit_lasso_cv$lambda.min)
+min_lambda_coef<- coef(lasso_min)[-1]
+nonzero_min <- length(which(min_lambda_coef!=0))
+
+#Lasso onese lambda
+lasso_1se<- glmnet(X,y, alpha = 1, lambda = fit_lasso_cv$lambda.1se)
+onese_lambda_coef<- coef(lasso_1se)[-1]
+nonzero_onese <-length(which(onese_lambda_coef!=0))
+```
+
+For lasso, we tried both lambda that minimizes cross-validated error and that which has one standard deviation of the error away from the minimum.
+
+##2
+$$(Y-X\beta)^T(Y-X\beta) =  (Y^T-(X\beta)^T)(Y-X\beta)$$
+$$ = Y^TY - Y^TX\beta-\beta^TX^TY+\beta^TX^TX\beta$$
+$$ = Y^TY - 2*Y^TX\beta+\beta^TX^TX\beta\ \ \text{(If A is a 1x1 A =}A^T.Thus,\ \beta^TX^TY=Y^TX\beta)$$ 
+
+$$= Y^TY +(-2)*(X^TY)^T\beta+\beta^TX^TX\beta$$
+$$\text{This tells us that}\ constant =\frac{1}{2}*Y^TY,\ C=-X^TY,\ and\ Q=\frac{1}{2}*X^TX$$
+
+```{r}
+##Function to estimate betas using MIQP
+MIQP <- function(X,y,num_beta,k,M){
+    model <- list()
+    sum_z_constr <- matrix(c(rep(0,num_beta),rep(1,num_beta)),nrow=1)
+    upper_m_constr <- cbind(diag(rep(1,num_beta)),-diag(rep(M,num_beta)))
+    lower_m_constr <- cbind(diag(rep(-1,num_beta)),-diag(rep(M,num_beta)))
+    model$A <- rbind(sum_z_constr,upper_m_constr,lower_m_constr)
+    
+    model$obj <- c((-t(X)%*%y),rep(0,num_beta))
+    model$objcon <- (0.5)*(t(y)%*%y)
+    Q <- matrix(0,2*num_beta,2*num_beta)
+    Q[(1:num_beta),(1:num_beta)] <- t(X)%*%X
+    model$Q <- 0.5*Q
+    model$sense <- c(rep("<=",nrow(model$A)))
+    model$vtype <- c(rep("C",num_beta),rep("B",num_beta))
+    model$rhs <- c(k,rep(0,nrow(model$A)-1))
+    model$modelsense <- "min"
+    ans <- gurobi(model)
+    return(ans)
+}
+```
+
+
+```{r, warning=FALSE}
+##Solve MIPQ repeatedly
+done <- FALSE
+num_beta <- 64
+k <- 8
+M <- 0.01
+while(!done){
+    ans <- MIQP(X,y,num_beta,k,M)
+    if(max(abs(ans$x[1:num_beta])) >= M){
+        M <- 2*M
+        next
+    }
+    else{
+        break
+    }
+}
+```
+
+
+###Coefficient of the best solution from MIQP
+
+```{r}
+ans$x[1:num_beta]
+```
+
+```{r}
+sol <- ans$x[1:num_beta]
+nonzero_MIQP <- length(sol[sol!= 0])
+num_nonzero <- c(nonzero_MIQP,nonzero_min,nonzero_onese)
+num_nonzero_df <- data.frame(num_nonzero)
+colnames(num_nonzero_df) <- c("Number Non-zero coefficient")
+rownames(num_nonzero_df) <- c("MIQP","Min_Lasso","1se_Lasso")
+kable(num_nonzero_df)
+```
+
+We can see that the number of nonzero coefficients from MIQP (8) is in between those using min and 1se lambdas.
+
+##3
+```{r}
+##Helper function to get the error
+norm_2 <- function(v){
+    return(t(v)%*%v)
+}
+
+##Function to get the error
+pred_error <- function(X,beta_hat,beta_0){
+    estimate <- X%*%beta_hat
+    truth <- X%*%beta_0
+    error <- estimate-truth
+    numerator <- norm_2(error)
+    denominator <- norm_2(truth)
+    return(numerator/denominator)
+}
+```
+
+```{r}
+##Find the errors for each regression
+beta_hat_MIQP <- ans$x[1:num_beta]
+beta_hat_min_lasso <- min_lambda_coef
+beta_hat_1se_lasso <- onese_lambda_coef
+beta_0 <- beta_real
+
+MIQP_error <- pred_error(X,beta_hat_MIQP,beta_0)
+min_lasso_error <- pred_error(X,beta_hat_min_lasso,beta_0)
+onese_lasso_error <- pred_error(X,beta_hat_1se_lasso,beta_0)
+
+error_vec <- c(MIQP_error,min_lasso_error,onese_lasso_error)
+names(error_vec) <- c("MIQP","Min_Lasso","1SE_Lasso")
+error_df <- data.frame(error_vec)
+colnames(error_df) <- "Error"
+kable(error_df)
+```
+
